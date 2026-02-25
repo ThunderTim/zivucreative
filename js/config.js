@@ -5,21 +5,40 @@
 const CONFIG = {
 
   /* ── Particle count ────────────────────────── */
-  PEAK_COUNT: 12,
+  // Reduce on mobile — smaller screen needs fewer shapes
+  // and lower-end devices benefit from the lighter load
+  PEAK_COUNT: window.innerWidth <= 600 ? 20 : 18,
 
   /* ── Spawn ─────────────────────────────────── */
   SPAWN_X_OFFSET: 0.33,
   SPAWN_X_SPREAD: 0.08,
 
-  /* ── Size (fraction of viewport height) ────── */
+  /* ── Mobile size scale ────────────────────────
+     Multiplier applied to all size ranges on small
+     screens. 1.0 = desktop, 0.45 = mobile default.
+     Adjust this single value to resize everything. */
+  SIZE_SCALE: window.innerWidth <= 600 ? 0.29 : 0.8,
   START_SIZE: { min: 0.02, max: 0.05 },
   MAX_SIZE:   { min: 0.20, max: 0.42 },
 
-  /* ── Fade in ──────────────────────────────── */
+  /* ── Small particle tier ──────────────────────
+     SMALL_PROBABILITY: chance any given particle
+       spawns as a small one (0.0–1.0)
+     SMALL_MAX_SIZE: growth ceiling for small tier
+       — they start and travel the same, just never
+       grow beyond this                            */
+  SMALL_PROBABILITY: 0.34,
+  SMALL_MAX_SIZE: { min: 0.05, max: 0.10 },
+
+  /* ── Fade in/out ──────────────────────────── */
   FADE_IN_DURATION: 0.9,
+  /* FADE_OUT_START: normalised X where exit fade begins.
+     Particle reaches opacity=0 by x=1.18 so large shapes
+     never pop off the edge mid-visible.                  */
+  FADE_OUT_START: 0.92,
 
   /* ── Travel ───────────────────────────────── */
-  VELOCITY: { min: 0.014, max: 0.030 },
+  VELOCITY: { min: 0.019, max: 0.040 },
 
   /* ── Funnel spread ────────────────────────── */
   SPAWN_Y_CENTER: 0.50,

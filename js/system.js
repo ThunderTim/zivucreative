@@ -79,37 +79,28 @@ const ParticleSystem = (() => {
     }
 
     // 2. Particle-to-particle wake propagation ──────
-    // Each disturbed particle bleeds its excess velocity
-    // to nearby particles at a decayed rate.
-    // Running this once per frame means 2nd/3rd order
-    // effects emerge naturally over subsequent frames —
-    // the newly disturbed particles become sources next frame.
-    const n = particles.length;
-    for (let i = 0; i < n; i++) {
-      const a = particles[i];
-      if (!a.isAlive()) continue;
+    // Only run between LIVE particles — sleeping/poofing ones
+    // don't contribute meaningful excess.
+    const live = particles.filter(p => p.isAlive() && p.state === STATE.LIVE);
+    const n    = live.length;
 
-      const { ex, ey } = a.getExcess();
-      const excessMag  = Math.sqrt(ex * ex + ey * ey);
-      if (excessMag < 0.0005) continue;   // skip if barely disturbed
+    for (let i = 0; i < n; i++) {
+      const a            = live[i];
+      const { ex, ey }   = a.getExcess();
+      const excessMag    = Math.sqrt(ex * ex + ey * ey);
+      if (excessMag < 0.0005) continue;
 
       for (let j = 0; j < n; j++) {
         if (i === j) continue;
-        const b = particles[j];
-        if (!b.isAlive()) continue;
-
-        // Aspect-corrected distance
+        const b    = live[j];
         const dx   = (b.x - a.x) * (a.aspect || 1);
         const dy   = b.y - a.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist >= CONFIG.PROP_RADIUS || dist < 0.001) continue;
 
-        // Proximity weight — cubic falloff, strongest when close
-        const t      = 1 - dist / CONFIG.PROP_RADIUS;
-        const weight = t * t * t;
-
-        // Transfer a fraction of A's excess to B, decayed
+        const t        = 1 - dist / CONFIG.PROP_RADIUS;
+        const weight   = t * t * t;
         const transfer = weight * CONFIG.PROP_STRENGTH * CONFIG.PROP_DECAY;
         b.receiveWake(ex * transfer, ey * transfer);
       }

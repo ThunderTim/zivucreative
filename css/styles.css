@@ -6,7 +6,7 @@
 
 :root {
   --coral:      #F26352;
-  --bg:         #161616;
+  --bg:         #111111;
   --white:      #ffffff;
   --dim:        rgba(255,255,255,0.45);
 
@@ -62,7 +62,7 @@ html, body {
 .bar-right { justify-self: end; }
 
 .bar-label {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 300;
   letter-spacing: 0.06em;
   
@@ -97,7 +97,7 @@ html, body {
    background-color controls the actual color */
 .email-btn .contact-icon {
   display: block;
-  height: 110px;
+  height: 95px;
   width: auto;
   aspect-ratio: auto;
   background-color: var(--white);
@@ -135,6 +135,7 @@ html, body {
   border: var(--t-border) solid var(--coral);
   background: transparent;
   overflow: hidden;
+  
   /* Background fill lags slightly so it "arrives" with the knob */
   transition: background 0.18s ease 0.14s;
 }
@@ -154,7 +155,7 @@ html, body {
   border-radius: 50%;
   background: var(--white);
   will-change: transform, width;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35)
+   box-shadow: 0 2px 6px rgba(0,0,0,0.35);
 }
 
 /* Knob slides with a smooth ease — no stretch, no keyframes */
@@ -200,12 +201,13 @@ html, body {
   justify-content: center;
   pointer-events: none;
   z-index: 2;
+  
 }
 
 .hero-line {
   display: flex;
   align-items: baseline;
-  gap: 3.85em;
+  gap: 0.61em;
   color: transparent;      /* invisible — WebGL draws the actual text */
   font-family: 'DM Serif Display', serif;
   letter-spacing: 0.02em;
@@ -213,8 +215,7 @@ html, body {
   user-select: none;
 }
 
-.hero-create      { font-size: clamp(14px, 3.8vw, 30px); }
-.hero-experiences { font-size: clamp(28px, 7.5vw, 60px); }
+
 
 
 /* ═══════════════════════════════════════════════
@@ -224,6 +225,32 @@ html, body {
   display: flex;
   flex-direction: column;
   padding: 56px 56px 100px;
+}
+
+/* ── Per-element enter/exit animation ──────────
+   Default state: offset down + invisible.
+   #view-info:not(.hidden) triggers the "in" state.
+   CSS reverses automatically on exit.
+   Staggered delays create a cascade feel.        */
+.logo-row,
+.copy-block {
+  opacity: 0;
+  transform: translateY(15px);
+  transition:
+    opacity  0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#view-info:not(.hidden) .logo-row {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.1s;
+}
+
+#view-info:not(.hidden) .copy-block {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .44s;
 }
 
 .logo-row {
@@ -260,9 +287,156 @@ html, body {
   
 }
 
+
 .copy-block p {
   font-size: clamp(17px, 1.8vw, 24px);
   font-weight: 300;
   line-height: 1.4;
   letter-spacing: -0.01em;
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE — individual font sizes for hero text
+   (referenced by text.js getBoundingClientRect)
+═══════════════════════════════════════════════ */
+.hero-create      { font-size: clamp(22px, 4.5vw, 60px); }
+.hero-experiences { font-size: clamp(36px, 6.5vw, 60px); }
+
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — TABLET  ≤ 900px
+═══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+
+  #bottom-bar {
+    padding: 0 28px 28px;
+  }
+
+  .bar-label {
+    font-size: 13px;
+  }
+
+  #view-info {
+    padding: 44px 44px 90px;
+  }
+
+  .copy-block {
+    gap: 0 40px;
+  }
+
+  .email-btn .contact-icon {
+    height: 76px;
+    width: 230px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — MOBILE  ≤ 600px
+═══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* ── Bottom bar — single column stack ───────
+     Order: label → email → toggle              */
+  #bottom-bar {
+    padding: 0 20px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .bar-left  { order: 1; }
+  .bar-right { order: 2; }
+  .toggle-wrap { order: 3; }
+
+  .bar-label {
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    /* Truncate long labels gracefully */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 28vw;
+  }
+
+  /* ── Toggle — slightly smaller on mobile ─── */
+  :root {
+    --t-w:      62px;
+    --t-h:      32px;
+    --t-knob:   22px;
+  }
+
+  /* ── Info view ───────────────────────────── */
+  #view-info {
+    padding: 36px 24px 80px;
+  }
+
+  .logo-mark {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+  }
+
+  .logo-text {
+    font-size: 17px;
+  }
+
+  /* Stack copy to single column */
+  .copy-block {
+    grid-template-columns: 1fr;
+    gap: 28px 0;
+  }
+
+  .copy-block p {
+    font-size: clamp(16px, 4.5vw, 20px);
+  }
+
+  /* ── Email button — scale for mobile ─────── */
+  .email-btn .contact-icon {
+    height: 60px;
+    width: 184px;
+  }
+
+  /* ── Hero text gap tighter on mobile ─────── */
+  .hero-line {
+    gap: 0.2em;
+  }
+
+  .hero-create      { font-size: clamp(18px, 6vw, 36px); }
+  .hero-experiences { font-size: clamp(34px, 11vw, 72px); }
+}
+
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE  ≤ 390px
+   (iPhone SE, older Androids)
+═══════════════════════════════════════════════ */
+@media (max-width: 390px) {
+
+  #bottom-bar {
+    padding: 0 16px 22px;
+  }
+
+  #view-info {
+    padding: 28px 20px 72px;
+  }
+
+  .logo-mark {
+    width: 52px;
+    height: 52px;
+  }
+
+  .logo-text {
+    font-size: 15px;
+  }
+
+  .copy-block p {
+    font-size: 15px;
+  }
+
+  .email-btn .contact-icon {
+    height: 52px;
+    width: 160px;
+  }
 }

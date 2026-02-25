@@ -94,8 +94,16 @@ const Scene = (() => {
 
   function start(onTick) {
     let lastTime = performance.now();
+    let visible  = true;
+
+    document.addEventListener('visibilitychange', () => {
+      visible  = !document.hidden;
+      if (visible) lastTime = performance.now(); // reset dt on resume
+    });
+
     (function loop(now) {
       requestAnimationFrame(loop);
+      if (!visible) return;
       const dt = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
       onTick(dt);

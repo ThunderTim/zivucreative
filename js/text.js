@@ -84,7 +84,7 @@ const Text = (() => {
     ctx.fillText('Create', createRect.left, createRect.top);
 
     ctx.font = `400 ${expSize}px 'DM Serif Display', serif`;
-    ctx.fillText('experiences', expRect.left, expRect.top);
+    ctx.fillText('experiences.', expRect.left, expRect.top);
 
     if (texture) texture.needsUpdate = true;
   }

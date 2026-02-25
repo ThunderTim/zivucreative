@@ -58,12 +58,14 @@ class Particle {
     const isWhite = Math.random() < CONFIG.WHITE_PROBABILITY;
     const color   = isWhite ? CONFIG.COLOR_WHITE : CONFIG.COLOR_DARK;
 
-    this.stencilMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
-    this.solidMat   = new THREE.MeshBasicMaterial({ color, depthWrite: false });
-    this.imageMat   = new THREE.MeshBasicMaterial({
-      map:         this.texture || null,
-      depthWrite:  false,
-      transparent: true,
+    this.stencilMat = new THREE.MeshBasicMaterial({
+      colorWrite: false, depthWrite: false, transparent: true,
+    });
+    this.solidMat = new THREE.MeshBasicMaterial({
+      color, depthWrite: false, transparent: true,
+    });
+    this.imageMat = new THREE.MeshBasicMaterial({
+      map: this.texture || null, depthWrite: false, transparent: true,
     });
 
     // Shapes appear square on screen — the mesh scale (size/aspect, size)
@@ -98,8 +100,13 @@ class Particle {
     this.y       = CONFIG.SPAWN_Y_CENTER  + (Math.random() - 0.5) * 2 * CONFIG.SPAWN_Y_SPREAD;
     this.targetY = CONFIG.SPAWN_Y_CENTER  + (Math.random() - 0.5) * 2 * CONFIG.MAX_Y_SPREAD;
 
-    this.startSize = rand(CONFIG.START_SIZE.min, CONFIG.START_SIZE.max);
-    this.maxSize   = rand(CONFIG.MAX_SIZE.min,   CONFIG.MAX_SIZE.max);
+    const s            = CONFIG.SIZE_SCALE;
+    this.startSize     = rand(CONFIG.START_SIZE.min, CONFIG.START_SIZE.max) * s;
+
+    const sizeRange    = Math.random() < CONFIG.SMALL_PROBABILITY
+      ? CONFIG.SMALL_MAX_SIZE
+      : CONFIG.MAX_SIZE;
+    this.maxSize       = rand(sizeRange.min, sizeRange.max) * s;
     this.velocity  = rand(CONFIG.VELOCITY.min,   CONFIG.VELOCITY.max);
 
     // Actual velocity components — cursor disturbs these directly.
@@ -224,22 +231,16 @@ class Particle {
     const driftStrength = CONFIG.Y_DRIFT_SPEED * (1 - Math.min(this.x, 0.8));
     const naturalVY     = (this.targetY - this.y) * driftStrength;
 
-    // Isolate excess — how far from natural flow each axis is
     const exX = this.vx - this.velocity;
     const exY = this.vy - naturalVY;
 
-    // Friction only decays the excess, never the natural velocity.
-    // This means undisturbed particles travel at full speed forever.
-    // Disturbed particles bleed off their extra force each frame.
     const decayedExX = exX * CONFIG.FRICTION;
     const decayedExY = exY * CONFIG.FRICTION;
 
-    // Restore nudges excess toward zero (same effect, clearer intent)
     const restore = CONFIG.FLOW_RESTORE * dt;
     const restoredExX = decayedExX * (1 - restore);
     const restoredExY = decayedExY * (1 - restore);
 
-    // Reconstruct velocity = natural + remaining excess
     this.vx = this.velocity + restoredExX;
     this.vy = naturalVY    + restoredExY;
 
@@ -250,9 +251,14 @@ class Particle {
     const eased    = Math.pow(progress, 1 / CONFIG.GROWTH_EASE);
     this.size      = this.startSize + (this.maxSize - this.startSize) * eased;
 
-    this.opacity = Math.min(1, this.fadeAge / CONFIG.FADE_IN_DURATION);
+    // Fade in on spawn, fade out smoothly before right edge
+    const fadeIn  = Math.min(1, this.fadeAge / CONFIG.FADE_IN_DURATION);
+    const fadeOut = this.x > CONFIG.FADE_OUT_START
+      ? 1 - (this.x - CONFIG.FADE_OUT_START) / (1.18 - CONFIG.FADE_OUT_START)
+      : 1;
+    this.opacity = Math.min(fadeIn, Math.max(0, fadeOut));
 
-    if (this.x > 1.15) { this.destroy(); return; }
+    if (this.x > 1.18) { this.destroy(); return; }
 
     this._applyTransform();
   }
@@ -292,15 +298,16 @@ class Particle {
     this.vy += ey;
   }
   _applyTransform() {
-    const scaleX = this.size / this.aspect;
-    const scaleY = this.size;
-    const z      = (this.zOrder % 100) * 0.08 - 4;
+    const scaleX   = this.size / this.aspect;
+    const scaleY   = this.size;
+    const z        = (this.zOrder % 100) * 0.08 - 4;
+    const visible  = this.opacity > 0;
 
     [this.stencilMesh, this.solidMesh, this.imageMesh].forEach(mesh => {
+      mesh.visible  = visible;
       mesh.position.set(this.x, this.y, z);
       mesh.scale.set(scaleX, scaleY, 1);
-      mesh.material.opacity     = this.opacity;
-      mesh.material.transparent = true;
+      mesh.material.opacity = this.opacity;
     });
   }
 
