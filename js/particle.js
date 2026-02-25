@@ -228,6 +228,11 @@ class Particle {
   _updateLive(dt) {
     this.fadeAge += dt;
 
+    // Refresh aspect each frame — handles iOS chrome show/hide
+    // which changes viewport height without destroying particles
+    const { W, H } = Scene.getSize();
+    this.aspect = W / H;
+
     const driftStrength = CONFIG.Y_DRIFT_SPEED * (1 - Math.min(this.x, 0.8));
     const naturalVY     = (this.targetY - this.y) * driftStrength;
 

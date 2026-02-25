@@ -30,6 +30,10 @@
 ═══════════════════════════════════════════════ */
 html, body {
   width: 100%; height: 100%;
+  /* iOS Safari fix: fill-available covers the visual viewport
+     correctly when the browser chrome is visible.
+     min-height fallback ensures it works on all browsers. */
+  min-height: -webkit-fill-available;
   background: var(--bg);
   color: var(--white);
   font-family: 'DM Sans', sans-serif;
@@ -207,7 +211,7 @@ html, body {
 .hero-line {
   display: flex;
   align-items: baseline;
-  gap: 0.61em;
+  gap: 0.35em;
   color: transparent;      /* invisible — WebGL draws the actual text */
   font-family: 'DM Serif Display', serif;
   letter-spacing: 0.02em;
@@ -300,7 +304,7 @@ html, body {
    (referenced by text.js getBoundingClientRect)
 ═══════════════════════════════════════════════ */
 .hero-create      { font-size: clamp(22px, 4.5vw, 60px); }
-.hero-experiences { font-size: clamp(36px, 6.5vw, 60px); }
+.hero-experiences { font-size: clamp(26px, 6.5vw, 63px); }
 
 
 /* ═══════════════════════════════════════════════

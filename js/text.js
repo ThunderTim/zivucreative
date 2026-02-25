@@ -43,6 +43,9 @@ const Text = (() => {
 
     requestAnimationFrame(_redraw);
     window.addEventListener('resize', () => requestAnimationFrame(_redraw));
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => requestAnimationFrame(_redraw));
+    }
   }
 
   /* ── Called each frame from the render loop ── */
@@ -84,7 +87,7 @@ const Text = (() => {
     ctx.fillText('Create', createRect.left, createRect.top);
 
     ctx.font = `400 ${expSize}px 'DM Serif Display', serif`;
-    ctx.fillText('experiences.', expRect.left, expRect.top);
+    ctx.fillText('experiences', expRect.left, expRect.top);
 
     if (texture) texture.needsUpdate = true;
   }
