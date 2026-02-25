@@ -16,7 +16,8 @@ const CONFIG = {
   /* ── Mobile size scale ────────────────────────
      Multiplier applied to all size ranges on small
      screens. 1.0 = desktop, 0.45 = mobile default.
-     Adjust this single value to resize everything. */
+     Adjust this single value to resize everything.
+     adding comments to update */
   SIZE_SCALE: window.innerWidth <= 600 ? 0.29 : 0.8,
   START_SIZE: { min: 0.02, max: 0.05 },
   MAX_SIZE:   { min: 0.20, max: 0.42 },
