@@ -1,0 +1,268 @@
+/* ─────────────────────────────────────────────
+   ZIVU CREATIVE — styles.css
+   ───────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --coral:      #F26352;
+  --bg:         #161616;
+  --white:      #ffffff;
+  --dim:        rgba(255,255,255,0.45);
+
+  /* ── Toggle geometry ──────────────────────── */
+  --t-w:        72px;
+  --t-h:        36px;
+  --t-border:   2px;
+  --t-knob:     26px;
+  /* Inner content area (inside the border) */
+  --t-inner-h:  calc(var(--t-h) - var(--t-border) * 2);   /* 32px */
+  --t-inner-w:  calc(var(--t-w) - var(--t-border) * 2);   /* 68px */
+  /* Equal margin on all sides → perfect centering */
+  --t-offset:   calc((var(--t-inner-h) - var(--t-knob)) / 2); /* 3px */
+  /* Travel = how far the knob moves */
+  --t-travel:   calc(var(--t-inner-w) - var(--t-knob) - var(--t-offset) * 2); /* 36px */
+}
+
+
+/* ═══════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════ */
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+
+/* ═══════════════════════════════════════════════
+   SHELL — persistent bottom bar, always on top
+═══════════════════════════════════════════════ */
+#shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  z-index: 100;
+}
+
+#bottom-bar {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 44px 36px;
+  pointer-events: auto;
+}
+
+.bar-left  { justify-self: start; }
+.bar-right { justify-self: end; }
+
+.bar-label {
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  
+  color: var(--dim);
+  transition: opacity 0.4s ease;
+}
+
+
+/* ═══════════════════════════════════════════════
+   EMAIL BUTTON
+   SVG speech bubble with text baked in = bot-proof.
+   No DOM text, no canvas needed.
+═══════════════════════════════════════════════ */
+.email-btn {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.2s ease;
+}
+
+.email-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.email-btn:hover  { transform: scale(1.03); }
+.email-btn:active { transform: scale(0.98); }
+
+/* Mask technique — SVG becomes a shape cutout,
+   background-color controls the actual color */
+.email-btn .contact-icon {
+  display: block;
+  height: 110px;
+  width: auto;
+  aspect-ratio: auto;
+  background-color: var(--white);
+  -webkit-mask: url('../assets/images/icon-contact.svg') no-repeat center / contain;
+          mask: url('../assets/images/icon-contact.svg') no-repeat center / contain;
+  transition: background-color 0.2s ease;
+  /* Width needs to match your SVG's natural aspect ratio — adjust if needed */
+  width: 290px;
+}
+
+.email-btn:hover .contact-icon {
+  background-color: #FF624D;
+}
+
+
+/* ═══════════════════════════════════════════════
+   TOGGLE
+   Animation IS pure CSS keyframes.
+   JS only adds/removes the trigger classes:
+     .animating-on / .animating-off / .is-on
+═══════════════════════════════════════════════ */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.toggle {
+  position: relative;
+  width:  var(--t-w);
+  height: var(--t-h);
+  border-radius: var(--t-h);
+  border: var(--t-border) solid var(--coral);
+  background: transparent;
+  overflow: hidden;
+  /* Background fill lags slightly so it "arrives" with the knob */
+  transition: background 0.18s ease 0.14s;
+}
+
+.toggle.is-on {
+  background: var(--coral);
+  transition: background 0.18s ease 0.10s;
+}
+
+/* Knob — centered via equal --t-offset on all sides */
+.knob {
+  position: absolute;
+  top:  var(--t-offset);
+  left: var(--t-offset);
+  width:  var(--t-knob);
+  height: var(--t-knob);
+  border-radius: 50%;
+  background: var(--white);
+  will-change: transform, width;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35)
+}
+
+/* Knob slides with a smooth ease — no stretch, no keyframes */
+.knob {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle.is-on .knob {
+  transform: translateX(var(--t-travel));
+  box-shadow: none;
+}
+
+
+/* ═══════════════════════════════════════════════
+   VIEW LAYERS
+═══════════════════════════════════════════════ */
+.view {
+  position: fixed;
+  inset: 0;
+  transition: opacity 0.45s ease;
+}
+
+.view.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════════════
+   VIEW 1 — CREATIVE
+   Hero text is layout-only — color: transparent
+   so it's invisible. WebGL text.js reads positions
+   via getBoundingClientRect() and renders the
+   actual text inside the stencil pipeline.
+═══════════════════════════════════════════════ */
+#view-creative { overflow: hidden; }
+
+.hero-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-line {
+  display: flex;
+  align-items: baseline;
+  gap: 3.85em;
+  color: transparent;      /* invisible — WebGL draws the actual text */
+  font-family: 'DM Serif Display', serif;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  user-select: none;
+}
+
+.hero-create      { font-size: clamp(14px, 3.8vw, 30px); }
+.hero-experiences { font-size: clamp(28px, 7.5vw, 60px); }
+
+
+/* ═══════════════════════════════════════════════
+   VIEW 2 — INFO
+═══════════════════════════════════════════════ */
+#view-info {
+  display: flex;
+  flex-direction: column;
+  padding: 56px 56px 100px;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.logo-mark {
+  width: 86px; height: 86px;
+  border-radius: 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.copy-block {
+  margin: auto 0;
+  
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 60px;
+  
+}
+
+.copy-block p {
+  font-size: clamp(17px, 1.8vw, 24px);
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}

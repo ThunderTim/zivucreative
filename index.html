@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zivu Creative</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════
+       VIEW 1 — CREATIVE
+       WebGL renders everything — shapes AND text.
+       These elements are invisible (color:transparent)
+       but stay in the DOM so CSS handles sizing and
+       centering. text.js reads their positions via
+       getBoundingClientRect() to place WebGL text.
+  ════════════════════════════════════ -->
+  <div class="view" id="view-creative">
+    <div class="hero-text" aria-label="Create experiences">
+      <div class="hero-line">
+        <span class="hero-create">Create</span>
+        <span class="hero-experiences">experiences</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════
+       VIEW 2 — INFO
+  ════════════════════════════════════ -->
+  <div class="view hidden" id="view-info">
+
+    <div class="logo-row">
+      <div class="logo-mark">
+        <img src="assets/images/logo-mark.svg" alt="Zivu Creative" />
+      </div>
+      <span class="logo-text">Zivu Creative</span>
+    </div>
+
+    <div class="copy-block">
+      <p>We turn complex systems into<br>experiences people actually understand.</p>
+      <p>Design and engineering under one roof.<br>Web, iOS, AR.</p>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════
+       PERSISTENT SHELL
+       Always on top — toggle never moves.
+  ════════════════════════════════════ -->
+  <div id="shell">
+    <div id="bottom-bar">
+
+      <div class="bar-left">
+        <span class="bar-label" id="label-left">Zivu Creative Development</span>
+      </div>
+
+      <div class="toggle-wrap" id="toggle-btn" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle" id="toggle">
+          <div class="knob"></div>
+        </div>
+      </div>
+
+      <div class="bar-right">
+        <div class="email-btn" id="email-btn" title="Get in touch">
+          <div class="contact-icon"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════
+       SCRIPTS
+       Load order: vendor → system → ui → boot
+  ════════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/text.js"></script>
+  <script src="js/particle.js"></script>
+  <script src="js/system.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/boot.js"></script>
+
+</body>
+</html>
